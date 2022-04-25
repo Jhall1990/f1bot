@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 import logging
 from logging.handlers import RotatingFileHandler
 
+from calendar import get_event_type_string
+
 
 #############
 # Constants #
@@ -135,11 +137,16 @@ class F1BotClient(discord.Client):
                 self.handled.add((notify_time, event))
                 await self.send_notify(event, notify_time)
 
-    def create_message(self, event, when):
+    def create_message(self, event, when=None, title=None):
         """
         Create an embed object for the event notification
         """
-        title = f"{event.event_string()} starts in {self.normalize_time(when)}"
+        if when:
+            title = f"{event.event_string()} starts in {self.normalize_time(when)}"
+
+        if not title:
+            title = f"{event.event_string()}"
+
         embed = discord.Embed(title=title, description=event.desc)
         embed.add_field(name="Location", value=event.location, inline=False)
         embed.add_field(name="Event Type", value=event.event_string(), inline=False)
@@ -208,7 +215,10 @@ class F1BotClient(discord.Client):
         if parts and parts[0] == self.cmd_string:
             cmd = Command(parts)
             response = self.message_handler(cmd)
-            await message.channel.send(response)
+            if isinstance(response, str):
+                await message.channel.send(response)
+            else:
+                await message.channel_send(embed=response)
         return
 
     def message_handler(self, command):
@@ -218,6 +228,7 @@ class F1BotClient(discord.Client):
         """
         handlers = {
             "ping": self.handle_ping,
+            "next": self.handle_next,
         }
 
         handler = handlers.get(command.prefix)
@@ -231,6 +242,50 @@ class F1BotClient(discord.Client):
         Simple ping command, respond "pong", just to make sure bot is up and working.
         """
         return "pong"
+
+    def handle_next(self, command):
+        """
+        Command to show what the next event. Supports the following
+        arguments, "event", "race", "quali", "qualifying", "sprint",
+        "fp1", "fp2", or "fp3".
+        """
+        arg_map = {
+            get_event_type_string(calendar.FP1).lower(): calendar.FP1,
+            get_event_type_string(calendar.FP2).lower(): calendar.FP2,
+            get_event_type_string(calendar.FP3).lower(): calendar.FP3,
+            get_event_type_string(calendar.PRACTICE).lower(): calendar.PRACTICE,
+            get_event_type_string(calendar.QUALIFYING).lower(): calendar.QUALIFYING,
+            get_event_type_string(calendar.SPRINT).lower(): calendar.SPRINT,
+            get_event_type_string(calendar.RACE).lower(): calendar.RACE,
+            "quali": calendar.QUALIFYING,
+        }
+        
+        if not command.args:
+            event_type = None
+        else:
+            event_type = arg_map.get(command.args[0], None)
+            if not event_type:
+                return f"I don't recognize the event type '{command.args[0]}' try something else"
+
+        next_event = self.__get_next_event(event_type)
+        
+        if not next_event:
+            return f"No more events this season :(\n(maybe update the calendar?)"
+        return self.create_message(next_event, title=f"Next {next_event.event_string()}")
+
+    def __get_next_event(self, event_type):
+        """
+        Find the next event that hasn't happened yet. If an event type is provided
+        find the next event of that type.
+        """
+        for event in events:
+            if event.already_happened():
+                continue
+            if not event_type:
+                return event
+            if event.event_type == event_type:
+                return event
+        return None
 
 
 ####################
