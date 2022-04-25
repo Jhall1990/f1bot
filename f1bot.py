@@ -229,6 +229,7 @@ class F1BotClient(discord.Client):
         handlers = {
             "ping": self.handle_ping,
             "next": self.handle_next,
+            "foksmash": self.handle_foksmash,
         }
         handler = handlers.get(command.prefix)
 
@@ -289,6 +290,12 @@ class F1BotClient(discord.Client):
             if event.event_type == event_type:
                 return event
         return None
+
+    def handle_foksmash(self, command):
+        """
+        Don't foksmash Guenther's door
+        """
+        return "https://www.youtube.com/watch?v=5h4FDy9Eqzs"
 
 
 ####################
