@@ -218,7 +218,7 @@ class F1BotClient(discord.Client):
             if isinstance(response, str):
                 await message.channel.send(response)
             else:
-                await message.channel_send(embed=response)
+                await message.channel.send(embed=response)
         return
 
     def message_handler(self, command):
@@ -230,7 +230,6 @@ class F1BotClient(discord.Client):
             "ping": self.handle_ping,
             "next": self.handle_next,
         }
-
         handler = handlers.get(command.prefix)
 
         if handler:
@@ -258,18 +257,22 @@ class F1BotClient(discord.Client):
             get_event_type_string(calendar.SPRINT).lower(): calendar.SPRINT,
             get_event_type_string(calendar.RACE).lower(): calendar.RACE,
             "quali": calendar.QUALIFYING,
+            "event": None,
         }
         
         if not command.args:
             event_type = None
         else:
-            event_type = arg_map.get(command.args[0], None)
-            if not event_type:
+            event_type = arg_map.get(command.args[0].lower(), -1)
+            if event_type == -1:
                 return f"I don't recognize the event type '{command.args[0]}' try something else"
 
         next_event = self.__get_next_event(event_type)
         
-        if not next_event:
+        if not next_event and event_type:
+            event_str = calendar.get_event_type_string(event_type)
+            return f"No more {event_str}s this season :(\n(maybe update the calendar?)"
+        else:
             return f"No more events this season :(\n(maybe update the calendar?)"
         return self.create_message(next_event, title=f"Next {next_event.event_string()}")
 
