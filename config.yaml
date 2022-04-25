@@ -1,0 +1,24 @@
+# Configure when notifications should be sent for each
+# type of event. Each even can have multiple notification
+# times.
+# Each key in the events map should have a list of X minutes
+# where X is how many minutes before the event a notification
+# should be sent.
+events:
+  fp1:
+    - 60
+  fp2:
+    - 60
+  fp3:
+    - 60
+  practice:
+    - 60
+  qualifying:
+    - 60
+    - 1440
+  sprint:
+    - 60
+    - 1440
+  race:
+    - 60
+    - 1440

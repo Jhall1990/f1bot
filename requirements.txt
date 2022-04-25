@@ -1,0 +1,4 @@
+discord
+icalendar
+pyyaml
+pytz
