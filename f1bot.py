@@ -1,13 +1,13 @@
 import sys
 import yaml
+import standings
 import discord
 from discord.ext import tasks
-import calendar
+import parse_calendar as calendar
 from datetime import datetime, timedelta
 import logging
 from logging.handlers import RotatingFileHandler
-
-from calendar import get_event_type_string
+from parse_calendar import get_event_type_string
 
 
 #############
@@ -230,6 +230,7 @@ class F1BotClient(discord.Client):
             "ping": self.handle_ping,
             "next": self.handle_next,
             "foksmash": self.handle_foksmash,
+            "standings": self.handle_standings,
         }
         handler = handlers.get(command.prefix)
 
@@ -296,6 +297,30 @@ class F1BotClient(discord.Client):
         Don't foksmash Guenther's door
         """
         return "https://www.youtube.com/watch?v=5h4FDy9Eqzs"
+
+    def handle_standings(self, command):
+        standings_map = { 
+            "driver": self._handle_driver_standings,
+            "con": self._handle_constructor_standings,
+            "cons": self._handle_constructor_standings,
+            "construct": self._handle_constructor_standings,
+            "constructor": self._handle_constructor_standings,
+        }
+
+        if not command.args:
+            return self._handle_driver_standings()
+        standing_func = standings_map.get(command.args[0].lower())
+
+        if not standing_func:
+            return f"I don't recognize that option: {command.args[0]}, try driver or constructor"
+        return standing_func()
+
+    def _handle_driver_standings(self):
+        s = standings.get_driver_standings()
+        return f"```\n{s}```"
+
+    def _handle_constructor_standings(self):
+        return "Under construction, try again later"
 
 
 ####################
