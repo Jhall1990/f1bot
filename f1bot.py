@@ -51,9 +51,10 @@ def setup_logger(logfile):
         delay=0
     )
     logger.addHandler(handler)
+    return logger
 
 
-setup_logger(LOG_FILE)
+logger = setup_logger(LOG_FILE)
 
 
 class Command():
@@ -83,7 +84,7 @@ class F1BotClient(discord.Client):
         Update the client config with the latest info in the config file.
         This allows us to update the config without having to restart the bot.
         """
-        logging.info("Updating config")
+        logger.info("Updating config")
         with open(CONFIG, "r") as cfg_file:
             self.config = yaml.safe_load(cfg_file.read())
 
@@ -115,11 +116,11 @@ class F1BotClient(discord.Client):
         happened, if it did we do nothing. Then we check the event start time against
         the notify times for the event type from the config file.
         """
-        logging.info(f"Seeing if we should alert for event {event}")
+        logger.info(f"Seeing if we should alert for event {event}")
 
         # See if the event already happened, do nothing if it has.
         if event.already_happened():
-            logging.info(f"Event {event} already occured, nothing to do")
+            logger.info(f"Event {event} already occured, nothing to do")
             return False
 
         # Get datetime objects for the current event type.
@@ -129,11 +130,11 @@ class F1BotClient(discord.Client):
         for alert_time, notify_time in zip(alert_times, notify_times):
             # See if we already handled this alert
             if (notify_time, event) in self.handled:
-                logging.info(f"Already notified for event {event} at {notify_time}m prior")
+                logger.info(f"Already notified for event {event} at {notify_time}m prior")
                 continue
 
             if alert_time > event.to_est():
-                logging.info(f"Sending notification for event {event} at {notify_time}m prior")
+                logger.info(f"Sending notification for event {event} at {notify_time}m prior")
                 self.handled.add((notify_time, event))
                 await self.send_notify(event, notify_time)
 
@@ -183,7 +184,7 @@ class F1BotClient(discord.Client):
         """
         dts = []
         for time_ in notify_times:
-            dts.append(calendar.Event.est.localize(datetime.today()) + timedelta(minutes=time_))
+            dts.append(calendar.Event.est.localize(datetime.today() + timedelta(minutes=time_)))
         return dts
 
     def cleanup(self):
@@ -320,7 +321,8 @@ class F1BotClient(discord.Client):
         return f"```\n{s}```"
 
     def _handle_constructor_standings(self):
-        return "Under construction, try again later"
+        s = standings.get_constructor_standings()
+        return f"```\n{s}```"
 
 
 ####################
