@@ -2,6 +2,8 @@ import pytz
 from datetime import datetime
 from icalendar import Calendar, Event
 
+import utils
+
 
 # Event types
 FP1 = 0
@@ -14,19 +16,19 @@ RACE = 6
 
 
 def get_event_type(summary):
-    if "Practice 1" in summary:
+    if "practice 1" in summary.lower():
         return FP1
-    elif "Practice 2" in summary:
+    elif "practice 2" in summary.lower():
         return FP2
-    elif "Practice 3" in summary:
+    elif "practice 3" in summary.lower():
         return FP3
-    elif "Practice" in summary:
+    elif "practice" in summary.lower():
         return PRACTICE
-    elif "Qualifying" in summary:
+    elif "qualifying" in summary.lower():
         return QUALIFYING
-    elif "Sprint" in summary:
+    elif "sprint" in summary.lower():
         return SPRINT
-    elif "Race" in summary:
+    elif "race" in summary.lower():
         return RACE
     raise ValueError(f"Unknown event type {summary}")
 
@@ -77,6 +79,16 @@ class Event():
         start = event.get("DTSTART").dt
         desc = str(event.get("SUMMARY"))
         return Event(event_type, location, start, desc)
+
+
+def get_upcoming_events(events, event_type):
+    tbl = utils.Table(("Location", "Date"))
+    for event in events:
+        if event.already_happened():
+            continue
+        if event.event_type == event_type:
+            tbl.add_row(event.location, event.to_est())
+    return tbl.output()
 
 
 def get_events(calendar):

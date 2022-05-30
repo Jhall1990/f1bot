@@ -1,3 +1,4 @@
+import os
 import sys
 import yaml
 import standings
@@ -41,8 +42,9 @@ def setup_logger(logfile):
     The max size is 5MB and we keep 2 backups, which honeslty too many, but whatever
     it's 15MB.
     """
-    logging.basicConfig(filename=LOG_FILE, level=logging.INFO)
+    # logging.basicConfig(filename=logfile, level=logging.INFO)
     logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
     handler = RotatingFileHandler(
         logfile,
         mode='a',
@@ -78,6 +80,7 @@ class F1BotClient(discord.Client):
         """
         print(f"{self.user} has connected!")
         self.do_alerts.start()
+        self.send_from_file.start()
 
     def update_config(self):
         """
@@ -87,6 +90,21 @@ class F1BotClient(discord.Client):
         logger.info("Updating config")
         with open(CONFIG, "r") as cfg_file:
             self.config = yaml.safe_load(cfg_file.read())
+
+    @tasks.loop(seconds=10)
+    async def send_from_file(self):
+        """
+        Check the message file and send whatever is in it
+        """
+        try:
+            with open("msgs.txt", "r") as msgs:
+                text = msgs.read()
+            channel = self.get_channel(F1_CHANNEL)
+            await channel.send(text)
+            os.remove("msgs.txt")
+        except Exception as e:
+            # Some error, do nothing, this isn't that important
+            pass
 
     ##################
     # Alert Handling #
@@ -213,7 +231,7 @@ class F1BotClient(discord.Client):
             return
 
         parts = message.content.split()
-        if parts and parts[0] == self.cmd_string:
+        if parts and parts[0].lower() == self.cmd_string:
             cmd = Command(parts)
             response = self.message_handler(cmd)
             if isinstance(response, str):
@@ -232,6 +250,7 @@ class F1BotClient(discord.Client):
             "next": self.handle_next,
             "foksmash": self.handle_foksmash,
             "standings": self.handle_standings,
+            "calendar": self.handle_calendar,
         }
         handler = handlers.get(command.prefix)
 
@@ -262,7 +281,7 @@ class F1BotClient(discord.Client):
             "quali": calendar.QUALIFYING,
             "event": None,
         }
-        
+
         if not command.args:
             event_type = None
         else:
@@ -271,11 +290,11 @@ class F1BotClient(discord.Client):
                 return f"I don't recognize the event type '{command.args[0]}' try something else"
 
         next_event = self.__get_next_event(event_type)
-        
+
         if not next_event and event_type:
             event_str = calendar.get_event_type_string(event_type)
             return f"No more {event_str}s this season :(\n(maybe update the calendar?)"
-        else:
+        elif not next_event:
             return f"No more events this season :(\n(maybe update the calendar?)"
         return self.create_message(next_event, title=f"Next {next_event.event_string()}")
 
@@ -284,7 +303,7 @@ class F1BotClient(discord.Client):
         Find the next event that hasn't happened yet. If an event type is provided
         find the next event of that type.
         """
-        for event in events:
+        for event in self.events:
             if event.already_happened():
                 continue
             if not event_type:
@@ -322,6 +341,21 @@ class F1BotClient(discord.Client):
 
     def _handle_constructor_standings(self):
         s = standings.get_constructor_standings()
+        return f"```\n{s}```"
+
+    def handle_calendar(self, command):
+        if not command.args:
+            event_type = calendar.RACE
+        else:
+            try:
+                event_type = calendar.get_event_type(command.args[0].lower())
+            except ValueError:
+                event_type = None
+
+        if not event_type:
+            return f"Sorry I don't recognize the event type {command.args[0]}"
+
+        s = calendar.get_upcoming_events(self.events, event_type)
         return f"```\n{s}```"
 
 
