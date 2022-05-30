@@ -21,7 +21,7 @@ CALENDAR = "calendar.ics"
 CONFIG = "config.yaml"
 
 # The location of the discord token file
-TOKEN_FILE = "token"
+TOKEN_FILE = "config/token"
 
 # The location of the log file.
 LOG_FILE = "f1bot.log"
@@ -88,6 +88,14 @@ class F1BotClient(discord.Client):
         This allows us to update the config without having to restart the bot.
         """
         logger.info("Updating config")
+        # Check the config filder first, use that one if present otherwise use default
+        try:
+            with open(os.path.join("config", CONFIG), "r") as cfg_file:
+                self.config = yaml.safe_load(cfg_file.read())
+                return
+        except FileNotFoundError:
+            pass
+
         with open(CONFIG, "r") as cfg_file:
             self.config = yaml.safe_load(cfg_file.read())
 
