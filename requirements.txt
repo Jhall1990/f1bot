@@ -2,3 +2,4 @@ discord
 icalendar
 pyyaml
 pytz
+requests
