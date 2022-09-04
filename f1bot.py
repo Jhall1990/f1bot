@@ -2,13 +2,14 @@ import os
 import sys
 import yaml
 import standings
+import subprocess
 import discord
 from discord.ext import tasks
 import parse_calendar as calendar
+from parse_calendar import get_event_type_string
 from datetime import datetime, timedelta
 import logging
 from logging.handlers import RotatingFileHandler
-from parse_calendar import get_event_type_string
 
 
 #############
@@ -42,7 +43,6 @@ def setup_logger(logfile):
     The max size is 5MB and we keep 2 backups, which honeslty too many, but whatever
     it's 15MB.
     """
-    # logging.basicConfig(filename=logfile, level=logging.INFO)
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
     handler = RotatingFileHandler(
@@ -79,6 +79,7 @@ class F1BotClient(discord.Client):
         Called when the discord bot has connected to the server.
         """
         print(f"{self.user} has connected!")
+        self.update_calendar_file.start()
         self.do_alerts.start()
         self.send_from_file.start()
 
@@ -113,6 +114,19 @@ class F1BotClient(discord.Client):
         except Exception as e:
             # Some error, do nothing, this isn't that important
             pass
+
+    @tasks.loop(hours=24)
+    async def update_calendar_file(self):
+        """
+        Download the latest calendar file.
+        """
+        cal_url = "https://www.formula1.com/calendar/Formula_1_Official_Calendar.ics"
+        command = ["wget", "-O", CALENDAR, cal_url]
+        try:
+            out = subprocess.check_output(command, stderr=subprocess.STDOUT)
+            logger.info("Updated calendar file")
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Failed to update calendar file\nstdout: {out}\nerr: {err}")
 
     ##################
     # Alert Handling #
