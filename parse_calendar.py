@@ -24,7 +24,7 @@ def get_event_type(summary):
         return FP3
     elif "practice" in summary.lower():
         return PRACTICE
-    elif any(i in summary.lower() for i in ("qualiying", "qualification")):
+    elif any(i in summary.lower() for i in ("qualifying", "qualification")):
         return QUALIFYING
     elif "sprint" in summary.lower():
         return SPRINT

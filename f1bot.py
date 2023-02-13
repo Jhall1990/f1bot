@@ -66,8 +66,8 @@ class Command():
 
 
 class F1BotClient(discord.Client):
-    def __init__(self, events):
-        super().__init__()
+    def __init__(self, events, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.cmd_string = "!f1"
         self.events = events
         self.config = {}
