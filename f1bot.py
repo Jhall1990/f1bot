@@ -16,10 +16,10 @@ from logging.handlers import RotatingFileHandler
 # Constants #
 #############
 # The location of the calendar file
-CALENDAR = "calendar.ics"
+CALENDAR = "config/calendar.ics"
 
 # The location of the config file
-CONFIG = "config.yaml"
+CONFIG = "config/config.yaml"
 
 # The location of the discord token file
 TOKEN_FILE = "config/token"
