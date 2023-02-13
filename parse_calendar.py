@@ -24,7 +24,7 @@ def get_event_type(summary):
         return FP3
     elif "practice" in summary.lower():
         return PRACTICE
-    elif "qualifying" in summary.lower():
+    elif any(i in summary.lower() for i in ("qualiying", "qualification")):
         return QUALIFYING
     elif "sprint" in summary.lower():
         return SPRINT
@@ -52,7 +52,7 @@ class Event():
         self.event_type = event_type
         self.location = location
         self.start = start
-        self.desc = desc
+        self.desc = desc.replace("RN365 ", "")
 
     def to_est(self):
         return self.start.astimezone(self.est)
