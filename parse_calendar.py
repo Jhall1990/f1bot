@@ -18,10 +18,10 @@ RACE = 6
 CAL_FP1 = ("fp1", "practice 1")
 CAL_FP2 = ("fp2", "practice 2")
 CAL_FP3 = ("fp3", "practice 3")
-CAL_PRAC = ("practice")
+CAL_PRAC = ("practice",)
 CAL_QUAL = ("qualifying", "qualification")
-CAL_SPRINT = ("sprint")
-CAL_SPRING = ("race")
+CAL_SPRINT = ("sprint",)
+CAL_RACE= ("race", "grand prix")
 
 
 def get_event_type(summary):
@@ -64,7 +64,9 @@ class Event():
         self.desc = desc.replace("RN365 ", "")
 
     def to_est(self):
-        return self.start.astimezone(self.est)
+        # The current calendar is already in est, so just return the start
+        # return self.start.astimezone(self.est)
+        return self.start
 
     def is_today(self):
         return self.to_est().date() == datetime.today().date()

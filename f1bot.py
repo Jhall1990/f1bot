@@ -79,9 +79,7 @@ class F1BotClient(discord.Client):
         Called when the discord bot has connected to the server.
         """
         print(f"{self.user} has connected!")
-        # F1 Moved their calendar for some reason so this doesn't work anymore
-        # someday I'll fix this but for the time being disable it.
-        # self.update_calendar_file.start()
+        self.update_calendar_file.start()
         self.do_alerts.start()
         self.send_from_file.start()
 
@@ -122,7 +120,7 @@ class F1BotClient(discord.Client):
         """
         Download the latest calendar file.
         """
-        cal_url = "https://www.formula1.com/calendar/Formula_1_Official_Calendar.ics"
+        cal_url = "https://files-f1.motorsportcalendars.com/f1-calendar_p1_p2_p3_qualifying_sprint_gp.ics"
         command = ["wget", "-O", CALENDAR, cal_url]
         try:
             out = subprocess.check_output(command, stderr=subprocess.STDOUT)
