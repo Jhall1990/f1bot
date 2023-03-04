@@ -107,6 +107,7 @@ def get_events(calendar):
     with open(calendar, "rb") as cal_file:
         cal = Calendar.from_ical(cal_file.read())
     for event in cal.walk():
-        if event.name == "VEVENT":
+        if (event.name == "VEVENT" and 
+            event.get("SUMMARY") != "Formula 1 in your calendar!"):
             events.append(Event.from_ics(event))
     return events
