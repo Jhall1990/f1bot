@@ -25,19 +25,19 @@ CAL_SPRING = ("race")
 
 
 def get_event_type(summary):
-    if any(i in summary.lower() for i in CAL_FP1)
+    if any(i in summary.lower() for i in CAL_FP1):
         return FP1
-    elif any(i in summary.lower() for i in CAL_FP2)
+    elif any(i in summary.lower() for i in CAL_FP2):
         return FP2
-    elif any(i in summary.lower() for i in CAL_FP3)
+    elif any(i in summary.lower() for i in CAL_FP3):
         return FP3
-    elif any(i in summary.lower() for i in CAL_PRAC)
+    elif any(i in summary.lower() for i in CAL_PRAC):
         return PRACTICE
-    elif any(i in summary.lower() for i in CAL_QUAL)
+    elif any(i in summary.lower() for i in CAL_QUAL):
         return QUALIFYING
-    elif any(i in summary.lower() for i in CAL_SPRINT)
+    elif any(i in summary.lower() for i in CAL_SPRINT):
         return SPRINT
-    elif any(i in summary.lower() for i in CAL_RACE)
+    elif any(i in summary.lower() for i in CAL_RACE):
         return RACE
     raise ValueError(f"Unknown event type {summary}")
 
