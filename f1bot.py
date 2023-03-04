@@ -79,7 +79,9 @@ class F1BotClient(discord.Client):
         Called when the discord bot has connected to the server.
         """
         print(f"{self.user} has connected!")
-        self.update_calendar_file.start()
+        # F1 Moved their calendar for some reason so this doesn't work anymore
+        # someday I'll fix this but for the time being disable it.
+        # self.update_calendar_file.start()
         self.do_alerts.start()
         self.send_from_file.start()
 
