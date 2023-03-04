@@ -14,21 +14,30 @@ QUALIFYING = 4
 SPRINT = 5
 RACE = 6
 
+# Event names in calendar
+CAL_FP1 = ("fp1", "practice 1")
+CAL_FP2 = ("fp2", "practice 2")
+CAL_FP3 = ("fp3", "practice 3")
+CAL_PRAC = ("practice")
+CAL_QUAL = ("qualifying", "qualification")
+CAL_SPRINT = ("sprint")
+CAL_SPRING = ("race")
+
 
 def get_event_type(summary):
-    if "practice 1" in summary.lower():
+    if any(i in summary.lower() for i in CAL_FP1)
         return FP1
-    elif "practice 2" in summary.lower():
+    elif any(i in summary.lower() for i in CAL_FP2)
         return FP2
-    elif "practice 3" in summary.lower():
+    elif any(i in summary.lower() for i in CAL_FP3)
         return FP3
-    elif "practice" in summary.lower():
+    elif any(i in summary.lower() for i in CAL_PRAC)
         return PRACTICE
-    elif any(i in summary.lower() for i in ("qualifying", "qualification")):
+    elif any(i in summary.lower() for i in CAL_QUAL)
         return QUALIFYING
-    elif "sprint" in summary.lower():
+    elif any(i in summary.lower() for i in CAL_SPRINT)
         return SPRINT
-    elif "race" in summary.lower():
+    elif any(i in summary.lower() for i in CAL_RACE)
         return RACE
     raise ValueError(f"Unknown event type {summary}")
 
