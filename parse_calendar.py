@@ -64,9 +64,7 @@ class Event():
         self.desc = desc.replace("RN365 ", "")
 
     def to_est(self):
-        # The current calendar is already in est, so just return the start
-        # return self.start.astimezone(self.est)
-        return self.start
+        return self.start.astimezone(self.est)
 
     def is_today(self):
         return self.to_est().date() == datetime.today().date()

@@ -173,7 +173,7 @@ class F1BotClient(discord.Client):
                 logger.info(f"Already notified for event {event} at {notify_time}m prior")
                 continue
 
-            if alert_time > event.start:
+            if alert_time > event.to_est():
                 logger.info(f"Sending notification for event {event} at {notify_time}m prior")
                 self.handled.add((notify_time, event))
                 await self.send_notify(event, notify_time)
