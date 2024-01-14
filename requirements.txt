@@ -1,6 +1,4 @@
-discord == 1.7.3
-discord.py == 1.7.3
-icalendar
-pyyaml
-pytz
+discord-py=2.3.2
+icalendar=5.0.11
 requests
+pyyaml

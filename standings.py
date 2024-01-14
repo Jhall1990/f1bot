@@ -85,14 +85,21 @@ class ConstructorStandings():
         return tbl.output()
 
 
-def get_driver_standings():
+standings_cache = None
+
+
+def cache():
+    global standings_cache
     year = datetime.now().year
+    year = 2023
     response = requests.request("GET", DRIVER_URL.format(year=year), headers={}, data={})
-    return DriverStandings.from_xml(response.text).to_text()
+    standings_cache = response.text
+
+
+def get_driver_standings():
+    return DriverStandings.from_xml(standings_cache).to_text()
 
 
 def get_constructor_standings():
-    year = datetime.now().year
-    response = requests.request("GET", DRIVER_URL.format(year=year), headers={}, data={})
-    ds = DriverStandings.from_xml(response.text)
+    ds = DriverStandings.from_xml(standings_cache)
     return ConstructorStandings.from_driver_standings(ds).to_text()
