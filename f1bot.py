@@ -51,13 +51,10 @@ class F1Bot(discord.Client):
     # How often, in seconds, to check to see if alerts should be sent
     event_interval = 60
 
-    # Where to save the downloaded calendar
-    calendar_file = "calendar.ics"
-
     # Where to download the calendar file from
     calendar_url = "https://files-f1.motorsportcalendars.com/f1-calendar_p1_p2_p3_qualifying_sprint_gp.ics"
 
-    def __init__(self, db_file, guild, channel, config_path, *args, **kwargs):
+    def __init__(self, db_file, guild, channel, config_path, data_dir, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.tree = discord.app_commands.CommandTree(self)
         self.db_file = db_file
@@ -67,6 +64,7 @@ class F1Bot(discord.Client):
         self.events = []
         self.handled = set()
         self.config = {}
+        self.calendar_file = os.path.join(data_dir, "calendar.ics")
 
     async def setup_hook(self):
         self.tree.copy_global_to(guild=self.guild)
@@ -106,7 +104,7 @@ class F1Bot(discord.Client):
         except subprocess.CalledProcessError as e:
             print(f"Failed to update calendar file\nstdout: {out}\nerr: {err}")
 
-        tmp_db_file = f"tmp.{self.db_file}"
+        tmp_db_file = f"{self.db_file}.tmp"
         convert_calendar.convert(self.calendar_file, tmp_db_file)
 
         with open(self.db_file, "rb") as f:
@@ -308,12 +306,13 @@ ap.add_argument("-g", "--guild", help="discord guild id", required=True)
 ap.add_argument("-c", "--channel", help="discord channel to send alerts to", required=True)
 ap.add_argument("-C", "--config", help="Path to alert config", required=True)
 ap.add_argument("-d", "--db", help="Path to race db file", required=True)
+ap.add_argument("-D", "--data_dir", help="Path to store data needed by the bot", required=True)
 args = ap.parse_args()
 
 
 ##########
 # "Main" #
 ##########
-client = F1Bot(args.db, args.guild, args.channel, args.config, intents=discord.Intents.default())
+client = F1Bot(args.db, args.guild, args.channel, args.config, args.data_dir, intents=discord.Intents.default())
 client.tree.add_command(F1Command(args.db))
 client.run(get_token(args.token))
