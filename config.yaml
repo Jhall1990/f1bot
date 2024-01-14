@@ -5,15 +5,12 @@
 # where X is how many minutes before the event a notification
 # should be sent.
 events:
-  fp1:
-    - 60
-  fp2:
-    - 60
-  fp3:
-    - 60
   practice:
     - 60
-  qualifying:
+  sprint_quali:
+    - 60
+    - 1440
+  quali:
     - 60
     - 1440
   sprint:
