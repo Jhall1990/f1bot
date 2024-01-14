@@ -39,6 +39,11 @@ def standings_choices():
     return [app_commands.Choice(name=c, value=c) for c in choices]
 
 
+def get_token(path):
+    with open(path, "r") as f:
+        return f.read().strip()
+
+
 ##########
 # Client #
 ##########
@@ -298,7 +303,7 @@ class F1Command(app_commands.Group):
 # Arg Parser #
 ##############
 ap = argparse.ArgumentParser()
-ap.add_argument("-t", "--token", help="discord bot token", required=True)
+ap.add_argument("-t", "--token", help="path to file with discord bot token", required=True)
 ap.add_argument("-g", "--guild", help="discord guild id", required=True)
 ap.add_argument("-c", "--channel", help="discord channel to send alerts to", required=True)
 ap.add_argument("-C", "--config", help="Path to alert config", required=True)
@@ -311,4 +316,4 @@ args = ap.parse_args()
 ##########
 client = F1Bot(args.db, args.guild, args.channel, args.config, intents=discord.Intents.default())
 client.tree.add_command(F1Command(args.db))
-client.run(args.token)
+client.run(get_token(args.token))
