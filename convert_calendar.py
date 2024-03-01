@@ -13,6 +13,10 @@ def get_event_info(category):
         return constants.EventType.QUALI, 0
     elif category.lower() == "grand prix":
         return constants.EventType.RACE, 0
+    elif category.lower() == "sprint":
+        return constants.EventType.SPRINT, 0
+    elif category.lower() == "sprint shootout":
+        return constants.EventType.SPRINT_QUALI, 0
     else:
         raise Exception(f"Unknown category: {category}")
 
@@ -31,7 +35,13 @@ class Event():
     @staticmethod
     def from_ics(event):
         country = str(event.get("LOCATION").strip())
-        event_type, event_number = get_event_info(str(event.get("CATEGORIES").cats[0]))
+        cats = get_event_info(str(event.get("CATEGORIES").cats[0]))
+        event_type = cats[0]
+        if len(cats) > 1:
+            event_number = cats[1]
+        else:
+            event_number = 0
+
         start_time = event.get("DTSTART").dt
         desc = str(event.get("SUMMARY"))
         return Event(country, event_type, event_number, start_time, desc)
