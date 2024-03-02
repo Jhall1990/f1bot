@@ -61,8 +61,7 @@ class F1Bot(discord.Client):
         self.guild = discord.Object(id=guild)
         self.channel = int(channel)
         self.config_path = config_path
-        self.events = []
-        self.handled = set()
+        self.handled = {}
         self.config = {}
         self.calendar_file = os.path.join(data_dir, "calendar.ics")
 
@@ -72,7 +71,6 @@ class F1Bot(discord.Client):
 
     async def on_ready(self):
         points.cache()
-        self.events = db.upcoming_events(self.db_file, EventType.ANY)
         self.do_alerts.start()
         self.update_calendar_file.start()
         self.update_standings_cache.start()
@@ -88,8 +86,9 @@ class F1Bot(discord.Client):
         send a notification for each event.
         """
         self.update_config()
+        events = db.upcoming_events(self.db_file, EventType.ANY)
 
-        for event in self.events:
+        for event in events:
             await self.maybe_notify(event)
         self.cleanup()
 
@@ -147,11 +146,11 @@ class F1Bot(discord.Client):
 
         for alert_time, notify_time in zip(alert_times, notify_times):
             # See if we already handled this alert
-            if (notify_time, event) in self.handled:
+            if (notify_time, str(event)) in self.handled:
                 continue
 
             if alert_time > event.to_est():
-                self.handled.add((notify_time, event))
+                self.handled[(notify_time, str(event))] = event
                 await self.send_notify(event, notify_time)
 
     def get_event_dts(self, notify_times):
@@ -201,7 +200,7 @@ class F1Bot(discord.Client):
         have occured.
         """
         to_remove = []
-        for when, event in self.handled:
+        for event in self.handled.values():
             if event.already_happened():
                 to_remove.append((when, event))
         for remove in to_remove:
@@ -279,7 +278,6 @@ class F1Command(app_commands.Group):
             events_str_len += len(event_str) + 1
 
         message = "\n".join(events_str)
-        print(len(message))
         await interaction.response.send_message(f"```\n{message}```")
 
     ####################

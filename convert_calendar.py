@@ -29,6 +29,9 @@ class Event():
         self.start_time = start_time
         self.desc = desc
 
+    def __str__(self):
+        return f'{self.country}, {self.event_type}, {self.event_number}, {self.start_time}, {self.desc}'
+
     def to_db(self):
         return f'("{self.country}", "{self.event_type}", {self.event_number}, "{self.start_time}", "{self.desc}")'
 
