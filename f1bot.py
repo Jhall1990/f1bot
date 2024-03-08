@@ -200,7 +200,7 @@ class F1Bot(discord.Client):
         have occured.
         """
         to_remove = []
-        for event in self.handled.values():
+        for (when, _), event in self.handled.items():
             if event.already_happened():
                 to_remove.append((when, event))
         for remove in to_remove:
