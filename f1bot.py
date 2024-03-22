@@ -204,7 +204,7 @@ class F1Bot(discord.Client):
             if event.already_happened():
                 to_remove.append((when, str(event)))
         for remove in to_remove:
-            del self.handled(remove)
+            del self.handled[remove]
 
 
 ####################
