@@ -15,7 +15,7 @@ def get_event_info(category):
         return constants.EventType.RACE, 0
     elif category.lower() == "sprint":
         return constants.EventType.SPRINT, 0
-    elif category.lower() == "sprint shootout":
+    elif category.lower() == "sprint qualifying":
         return constants.EventType.SPRINT_QUALI, 0
     else:
         raise Exception(f"Unknown category: {category}")
