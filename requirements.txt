@@ -2,3 +2,4 @@ discord-py==2.3.2
 icalendar==5.0.11
 requests
 pyyaml
+audioop-lts
