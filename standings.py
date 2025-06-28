@@ -5,7 +5,7 @@ from xml.etree import ElementTree
 import utils
 
 
-DRIVER_URL = "https://api.jolpi.ca/ergast/f1/{year}/drivers"
+DRIVER_URL = "https://api.jolpi.ca/ergast/f1/{year}/driverstandings"
 
 
 class Driver():
